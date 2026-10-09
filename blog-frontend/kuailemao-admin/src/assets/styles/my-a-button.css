@@ -1,0 +1,62 @@
+/* 彩色按钮（源自 Ruyu-Blog）。原文件在纯 CSS 中使用了嵌套语法和未定义的 Less 混入 .color-disabled，
+   构建时产生 Unexpected "}" 警告并被丢弃；这里展开为标准 CSS。 */
+.ant-btn.orange,
+.ant-btn.orange:active,
+.ant-btn.orange.active {
+    color: #fff !important;
+    background-color: #ff9900 !important;
+    border-color: #ff9900 !important;
+}
+.ant-btn.orange:hover,
+.ant-btn.orange:focus {
+    background-color: #ffad33 !important;
+    border-color: #ffad33 !important;
+}
+
+.ant-btn.green,
+.ant-btn.green:active,
+.ant-btn.green.active {
+    color: #fff !important;
+    background-color: #19be6b !important;
+    border-color: #19be6b !important;
+}
+.ant-btn.green:hover,
+.ant-btn.green:focus {
+    background-color: #47cb89 !important;
+    border-color: #47cb89 !important;
+}
+
+.ant-btn.light-blue,
+.ant-btn.light-blue:active,
+.ant-btn.light-blue.active {
+    color: #fff;
+    background-color: #2db7f5;
+    border-color: #2db7f5;
+}
+.ant-btn.light-blue:hover,
+.ant-btn.light-blue:focus {
+    color: #fff;
+    background-color: #57c5f7;
+    border-color: #57c5f7;
+}
+
+.ant-btn.red,
+.ant-btn.red:active,
+.ant-btn.red.active {
+    color: #fff;
+    background-color: #ed4014;
+    border-color: #ed4014;
+}
+.ant-btn.red:hover,
+.ant-btn.red:focus {
+    background-color: #f16643;
+    border-color: #f16643;
+}
+
+.ant-btn.orange[disabled],
+.ant-btn.green[disabled],
+.ant-btn.light-blue[disabled],
+.ant-btn.red[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

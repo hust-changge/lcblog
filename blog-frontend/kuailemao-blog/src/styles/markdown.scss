@@ -1,0 +1,114 @@
+// 文章正文排版（替代 md-editor-v3 的 preview.css），随 Element Plus 暗色变量自动切换。
+.markdown-body {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--el-text-color-primary);
+  overflow-wrap: break-word;
+
+  h1, h2, h3, h4 {
+    line-height: 1.4;
+    margin: 1.6em 0 0.6em;
+    font-weight: 700;
+    scroll-margin-top: 70px;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--el-border-color);
+  }
+
+  h3 {
+    font-size: 1.25em;
+  }
+
+  p, ul, ol, blockquote, pre, table {
+    margin: 0.9em 0;
+  }
+
+  ul {
+    list-style: disc;
+    padding-left: 1.6em;
+  }
+
+  ol {
+    list-style: decimal;
+    padding-left: 1.6em;
+  }
+
+  a {
+    color: var(--el-color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  blockquote {
+    padding: 0.2em 1em;
+    color: var(--el-text-color-secondary);
+    border-left: 4px solid var(--el-border-color);
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--el-border-color);
+    margin: 1.5em 0;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+
+    th, td {
+      border: 1px solid var(--el-border-color);
+      padding: 6px 12px;
+    }
+
+    th {
+      background: var(--el-fill-color-light);
+    }
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9em;
+    background: var(--el-fill-color-light);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+
+  pre {
+    background: var(--el-fill-color-light);
+    border: 1px solid var(--el-border-color);
+    border-radius: 6px;
+    padding: 14px;
+    overflow-x: auto;
+    line-height: 1.55;
+
+    code {
+      background: none;
+      padding: 0;
+      font-size: 0.875rem;
+    }
+  }
+
+  .tok-keyword { color: #a626a4; }
+  .tok-string { color: #217a3c; }
+  .tok-number { color: #985f00; }
+  .tok-comment { color: #6a737d; font-style: italic; }
+  .tok-annotation { color: #0b57d0; }
+}
+
+html.dark .markdown-body {
+  .tok-keyword { color: #d2a8ff; }
+  .tok-string { color: #7ee787; }
+  .tok-number { color: #f2cc60; }
+  .tok-comment { color: #8b949e; }
+  .tok-annotation { color: #79c0ff; }
+}

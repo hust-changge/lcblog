@@ -1,0 +1,10 @@
+@use "reset.scss";
+@use "theme.scss";
+@use "element_style";
+@use "scrollBar";
+@use "woff";
+
+body {
+  transition: all 0.5s ease !important;
+  background-color: var(--mao-background-color);
+}

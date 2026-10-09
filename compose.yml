@@ -1,0 +1,82 @@
+name: lcblog
+
+x-app-env: &app-env
+  SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+  SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+  TZ: Asia/Shanghai
+  DB_URL: jdbc:mysql://mysql:3306/lcblog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+  DB_USERNAME: lcblog
+  DB_PASSWORD: ${MYSQL_PASSWORD:?请在 .env 中设置 MYSQL_PASSWORD}
+  BLOG_ADMIN_USERNAME: ${BLOG_ADMIN_USERNAME:-}
+  BLOG_ADMIN_PASSWORD: ${BLOG_ADMIN_PASSWORD:-}
+  BLOG_SITE_TITLE: ${BLOG_SITE_TITLE:-我的技术博客}
+  BLOG_SITE_DESCRIPTION: ${BLOG_SITE_DESCRIPTION:-}
+  BLOG_SITE_BASE_URL: ${BLOG_SITE_BASE_URL:-http://localhost}
+  OSS_ENDPOINT: ${OSS_ENDPOINT:-}
+  OSS_REGION: ${OSS_REGION:-}
+  OSS_PUBLIC_BUCKET: ${OSS_PUBLIC_BUCKET:-}
+  OSS_PRIVATE_BUCKET: ${OSS_PRIVATE_BUCKET:-}
+  OSS_PUBLIC_BASE_URL: ${OSS_PUBLIC_BASE_URL:-}
+  OSS_ECS_RAM_ROLE: ${OSS_ECS_RAM_ROLE:-}
+  OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID:-}
+  OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET:-}
+  OSS_SESSION_TOKEN: ${OSS_SESSION_TOKEN:-}
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: lcblog
+      MYSQL_USER: lcblog
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?请在 .env 中设置 MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?请在 .env 中设置 MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Shanghai
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks: [backend]            # 不映射端口，数据库不对外暴露
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ./blog-backend
+    restart: unless-stopped
+    environment: *app-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [backend, frontend]  # frontend 提供访问 OSS 的出网能力；不映射端口
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  nginx:
+    build: ./blog-frontend      # 构建前台 + 后台 SPA，见 blog-frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/${NGINX_CONF:-nginx-http.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/lcblog-common.inc:/etc/nginx/conf.d/lcblog-common.inc:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+      - ./deploy/certbot-www:/var/www/certbot:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks: [frontend]
+
+networks:
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  mysql-data:

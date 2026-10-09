@@ -1,0 +1,22 @@
+lcblog
+Copyright 2026 lcblog 作者
+
+本项目的前端界面基于以下开源项目修改：
+
+1. Ruyu-Blog
+   https://github.com/kuailemao/Ruyu-Blog （commit 8440e732551d5fb16c5b66f22142950186136265）
+   Copyright kuailemao
+   Licensed under the Apache License, Version 2.0
+   许可证全文：blog-frontend/LICENSE-Ruyu-Blog-Apache-2.0
+   使用范围：blog-frontend/kuailemao-blog（前台）与 blog-frontend/kuailemao-admin（后台）
+
+2. Antdv Pro（Ruyu-Blog 后台所基于的框架）
+   https://github.com/antdv-pro/antdv-pro
+   Copyright (c) 2023 Antdv Pro
+   Licensed under the MIT License
+   许可证全文：blog-frontend/kuailemao-admin/LICENSE
+
+已修改的文件在文件头注明“来源：Ruyu-Blog / Antdv Pro … 修改：…”。
+复用范围与修改清单见 blog-frontend/REUSE.md。
+
+后端（Spring Boot，src/）为本项目自行编写，未复用 Ruyu-Blog 的后端代码。

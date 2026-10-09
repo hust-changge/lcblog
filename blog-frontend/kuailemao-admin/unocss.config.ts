@@ -1,0 +1,35 @@
+// 来源：Antdv Pro（MIT）。修改：删除 presetWebFonts（会从 Google Fonts 加载字体）与图标集预设。
+import {
+  defineConfig,
+  presetAttributify,
+  presetTypography,
+  presetUno,
+  transformerDirectives,
+  transformerVariantGroup,
+} from 'unocss'
+import presetChinese from 'unocss-preset-chinese'
+import presetEase from 'unocss-preset-ease'
+import antdUnoTheme from './themes/antd-uno-theme.json'
+
+export default defineConfig({
+  safelist: [
+    'py-16px',
+    'pb-16px',
+  ],
+  theme: {
+    ...antdUnoTheme,
+  },
+  presets: [
+    presetUno(),
+    presetAttributify(),
+    presetChinese(),
+    presetEase(),
+    presetTypography(),
+  ],
+  shortcuts: [
+    ['flex-center', 'flex items-center justify-center'],
+    ['flex-between', 'flex items-center justify-between'],
+    ['flex-end', 'flex items-end justify-between'],
+  ],
+  transformers: [transformerDirectives(), transformerVariantGroup()],
+})
