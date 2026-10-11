@@ -1,0 +1,6 @@
+# 与 compose.yml 一起使用；服务器启动必须加 --no-build。
+services:
+  app:
+    image: ghcr.io/hust-changge/lcblog-app:${IMAGE_TAG:?请设置构建成功的完整提交 SHA}
+  nginx:
+    image: ghcr.io/hust-changge/lcblog-nginx:${IMAGE_TAG:?请设置构建成功的完整提交 SHA}

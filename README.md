@@ -251,6 +251,59 @@ SVG、HTML 等可执行内容不允许上传。只有图片内联展示，其余
 - 日志中不会出现密码、AccessKey 或签名 URL（OSS SDK 日志级别为 warn，签名地址只出现在 302 响应头中）。
 - Nginx 对 `/api/auth/login` 限速（每分钟 10 次，突发 5 次）。请求体上限为 2 MB，Tomcat 表单上限同样为 2 MB。
 
+### 5.1 小内存服务器：GitHub Actions 构建，服务器只运行镜像
+
+`.github/workflows/images.yml` 在推送 `main` 或手动运行时，分别构建 Linux amd64 后端和前端镜像并发布到 GHCR。
+使用仓库自带的 `GITHUB_TOKEN`，无需把服务器密码、数据库密码或 OSS 密钥添加到 Actions。
+镜像名为 `ghcr.io/hust-changge/lcblog-app:<完整提交SHA>` 和 `ghcr.io/hust-changge/lcblog-nginx:<完整提交SHA>`。
+两个任务都成功后才部署对应版本；只有一个任务成功的版本不要部署。
+
+首次配置：
+
+1. 提交并推送工作流、`compose.registry.yml` 和本文档，打开仓库 Actions，等待 **Build images** 的两个任务成功。
+2. GHCR 首次发布的包默认私有。服务器使用 GitHub personal access token **classic**（只需 `read:packages`，且账号有包的读取权限）登录。
+   在 GitHub Settings → Developer settings → Personal access tokens → Tokens (classic) 创建令牌，设置有效期。
+   保持镜像私有即可，不需要改为公开。
+
+在服务器执行（输入令牌时不会显示，也不会将令牌本身写入命令历史）：
+
+```bash
+read -rsp "GitHub read:packages token: " GHCR_TOKEN
+echo
+printf '%s' "$GHCR_TOKEN" | sudo docker login ghcr.io -u hust-changge --password-stdin
+unset GHCR_TOKEN
+```
+
+正常使用 Git 代理拉取代码后，先确认当前提交对应的 Actions 已全部成功，再执行：
+
+```bash
+cd ~/lcblog-repo
+git pull --ff-only
+export IMAGE_TAG=$(git rev-parse HEAD)
+sudo env IMAGE_TAG="$IMAGE_TAG" docker compose -f compose.yml -f compose.registry.yml config --quiet &&
+sudo env IMAGE_TAG="$IMAGE_TAG" docker compose -f compose.yml -f compose.registry.yml pull app nginx &&
+sudo env IMAGE_TAG="$IMAGE_TAG" docker compose -f compose.yml -f compose.registry.yml up -d --no-build --pull never --force-recreate app nginx
+```
+
+`sudo env` 显式传入镜像版本，避免 sudo 清除环境变量。`--no-build` 保证服务器不编译，`--pull never` 使用已下载的镜像。
+保留服务器已有 `.env`、数据库密码、`lcblog` 项目名、MySQL 数据卷和证书目录。命令只拉取两个应用镜像；
+现有部署无需重新下载 MySQL。如为全新部署，先运行 `sudo docker compose pull mysql`。
+
+检查：
+
+```bash
+sudo env IMAGE_TAG="$IMAGE_TAG" docker compose -f compose.yml -f compose.registry.yml ps
+sudo env IMAGE_TAG="$IMAGE_TAG" docker compose -f compose.yml -f compose.registry.yml logs --tail=80 app nginx
+curl --noproxy '*' -fsS http://127.0.0.1/api/public/site
+```
+
+等 app 健康后验证页面。若仅重建了 app，Nginx 可能仍保留旧容器 IP，因此这里一起重建 app/nginx。
+HTTPS 配置请使用对应 HTTPS 地址验证。Git 与 Docker 的出站代理分别配置，服务器仍需能下载 GHCR 镜像。
+
+以后更新重复“拉取代码 → 等对应 Actions 成功 → pull → up”；不要再执行服务器端的 `docker compose build`。
+回滚时把 `IMAGE_TAG` 改为以前构建成功的完整提交 SHA，重复 pull/up。回滚镜像不撤销数据库迁移，
+涉及数据库结构的更新需单独检查兼容性。不要执行 `docker compose down -v`。
+
 ## 6. 备份与恢复
 
 数据库保存文章正文和文件元数据，文件本体在 OSS。**备份需要传到服务器以外的地方。**
