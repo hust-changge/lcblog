@@ -13,6 +13,9 @@ export default ({ mode }: ConfigEnv): UserConfig => {
   return {
     // 后台部署在 /admin/ 子路径下（见 deploy/nginx-*.conf）
     base: env.VITE_APP_BASE || '/admin/',
+    define: {
+      __INTLIFY_JIT_COMPILATION__: true,
+    },
     plugins: createVitePlugins(),
     resolve: {
       alias: [
